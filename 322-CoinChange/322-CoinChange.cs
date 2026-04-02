@@ -1,37 +1,38 @@
-// Last updated: 4/2/2026, 1:02:02 AM
+// Last updated: 4/2/2026, 1:16:09 AM
 1public class Solution {
-2    public int CoinChange(int[] coins, int amount) {
-3        int n = coins.Length;
-4        int m = amount;
-5        int[][] dp = new int[n+1][];
+2
+3    private int?[][] memo;
+4
+5    public int CoinChange(int[] coins, int amount) {
 6
-7        for(int i=0;i<=n;i++)
-8            dp[i] = new int[m+1];
-9
-10        dp[0][0] = 0;
-11
-12        for(int j=1;j<=m;j++)
-13        {
-14            dp[0][j] = m+1;
-15        }
-16
-17        for(int i=1;i<=n;i++)
-18        {
-19            dp[i][0] = 0;
-20        }
-21
-22        for(int i=1;i<=n;i++)
-23        {
-24            for(int j=1;j<=m;j++)
-25            {
-26                if(j<coins[i-1])
-27                    dp[i][j] = dp[i-1][j];
-28                else
-29                    dp[i][j] = Math.Min(dp[i-1][j], 1+dp[i][j-coins[i-1]]);
-30            }
-31        }
-32
-33        if(dp[n][m]>=m+1) return -1;
-34        return dp[n][m];
-35    }
-36}
+7        memo = new int?[coins.Length+1][];
+8        for(int i=0;i<=coins.Length;i++)
+9            memo[i] = new int?[amount+1];
+10
+11        int result = helper(coins, 0, amount);
+12
+13        if(result>=int.MaxValue-1)
+14            return -1;
+15        else
+16            return result;
+17    }
+18
+19    private int helper(int[] coins, int idx, int amount)
+20    {
+21        //base case
+22        if(amount<0 || idx==coins.Length) return int.MaxValue-1;
+23        if(amount==0) return 0;
+24
+25        //logic
+26        if(memo[idx][amount].HasValue)
+27            return memo[idx][amount].Value;
+28
+29        //not choose
+30        int case1 = helper(coins, idx+1,amount);
+31        //choose
+32        int case2 = 1 + helper(coins, idx, amount-coins[idx]);
+33
+34        memo[idx][amount] = Math.Min(case1, case2);
+35        return memo[idx][amount].Value;
+36    }
+37}
